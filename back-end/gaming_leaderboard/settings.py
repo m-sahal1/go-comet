@@ -243,3 +243,44 @@ else:
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
+
+# Celery Configuration
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+# Celery Task Configuration
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
+
+# Celery Beat Configuration (for periodic tasks)
+CELERY_BEAT_SCHEDULE = {
+    'update-leaderboard-ranks': {
+        'task': 'leaderboard.tasks.update_all_ranks',
+        'schedule': 300.0,  # Run every 5 minutes
+    },
+    'cache-top-leaderboard': {
+        'task': 'leaderboard.tasks.cache_top_leaderboard',
+        'schedule': 60.0,  # Run every minute
+    },
+    'cleanup-old-sessions': {
+        'task': 'leaderboard.tasks.cleanup_old_game_sessions',
+        'schedule': 3600.0,  # Run every hour
+    },
+}
+
+# Celery Worker Configuration
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_DISABLE_RATE_LIMITS = False
+CELERY_TASK_COMPRESSION = 'gzip'
+CELERY_RESULT_COMPRESSION = 'gzip'
+
+# Task routing
+CELERY_TASK_ROUTES = {
+    'leaderboard.tasks.update_all_ranks': {'queue': 'leaderboard'},
+    'leaderboard.tasks.cache_top_leaderboard': {'queue': 'cache'},
+    'leaderboard.tasks.cleanup_old_game_sessions': {'queue': 'maintenance'},
+}

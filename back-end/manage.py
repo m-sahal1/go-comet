@@ -3,6 +3,10 @@
 import os
 import sys
 
+# Initialize New Relic agent for development server
+if 'runserver' in sys.argv:
+    import newrelic.agent
+    newrelic.agent.initialize('newrelic.ini', 'development')
 
 def main():
     """Run administrative tasks."""
