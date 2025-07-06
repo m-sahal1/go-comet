@@ -105,13 +105,12 @@ export const transformLeaderboardData = (rawData) => {
     console.warn('Invalid leaderboard data format:', rawData);
     return [];
   }
-
   return rawData.map((player, index) => ({
     rank: player.rank || index + 1,
-    username: sanitizeUsername(player.username || player.userId || 'Unknown'),
-    score: parseInt(player.score) || 0,
+    username: sanitizeUsername(player.user.username || player.user.id || 'Unknown'),
+    score: parseInt(player.total_score) || 0,
     country: player.country || '🌍',
-    userId: player.userId || player.username,
+    userId: player.user.id || player.user.username,
     gameMode: player.gameMode || 'standard',
     timestamp: player.timestamp || player.lastPlayed || new Date().toISOString(),
   }));
