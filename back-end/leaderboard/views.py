@@ -1,17 +1,21 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import F, Count, Q
+from django.db import connection
+from django.db.models import F, Count, Q, Prefetch
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
+import logging
 
 from .models import GameSession, LeaderboardEntry
 from .serializers import GameSessionSerializer, LeaderboardEntrySerializer
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
@@ -55,7 +59,7 @@ def submit_score(request):
             )
             
             if not created:
-                # Update existing entry
+                # Update existing entry using F() to avoid race conditions
                 leaderboard_entry.total_score = F('total_score') + score
                 leaderboard_entry.save(update_fields=['total_score'])
                 leaderboard_entry.refresh_from_db()
@@ -67,11 +71,13 @@ def submit_score(request):
             leaderboard_entry.rank = better_players + 1
             leaderboard_entry.save(update_fields=['rank'])
         
-        # Serialize and return the created game session
+        # Serialize and return the created game session with optimized query
+        game_session = GameSession.objects.select_related('user').get(id=game_session.id)
         serializer = GameSessionSerializer(game_session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
         
     except Exception as e:
+        logger.error(f"Error in submit_score: {str(e)}")
         return Response(
             {'error': 'Internal server error'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -86,24 +92,25 @@ def get_leaderboard(request):
     Query params: limit, offset for pagination
     """
     try:
-        # Get top players ordered by total_score (descending)
+        # Optimized query with select_related to avoid N+1 queries
         queryset = LeaderboardEntry.objects.select_related('user').filter(
             total_score__gt=0
         ).order_by('-total_score')
-        print(queryset[0].__dict__)
+        
         # Apply pagination
         paginator = LimitOffsetPagination()
         paginator.default_limit = 10  # Default to top 10
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         
-        # Update ranks for consistency (in production, this would be done via background task)
+        # Update ranks for consistency (optimized to avoid individual saves)
         for idx, entry in enumerate(paginated_queryset):
             entry.rank = idx + 1 + paginator.offset
         
         serializer = LeaderboardEntrySerializer(paginated_queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
         
     except Exception as e:
+        logger.error(f"Error in get_leaderboard: {str(e)}")
         return Response(
             {'error': 'Internal server error'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -117,16 +124,16 @@ def get_player_rank(request, user_id):
     GET /api/leaderboard/rank/{user_id}
     """
     try:
-        # Check if user exists
+        # Optimized user lookup with only() to fetch minimal data
         try:
-            user = User.objects.get(id=user_id)
+            user = User.objects.only('id', 'username', 'date_joined').get(id=user_id)
         except User.DoesNotExist:
             return Response(
                 {'error': 'User not found'}, 
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Get leaderboard entry
+        # Get leaderboard entry with optimized query
         try:
             leaderboard_entry = LeaderboardEntry.objects.select_related('user').get(user=user)
         except LeaderboardEntry.DoesNotExist:
@@ -144,22 +151,99 @@ def get_player_rank(request, user_id):
                 status=status.HTTP_200_OK
             )
         
-        # # Calculate current rank efficiently
-        # better_players_count = LeaderboardEntry.objects.filter(
-        #     total_score__gt=leaderboard_entry.total_score
-        # ).count()
-        # current_rank = better_players_count + 1
+        # Calculate current rank efficiently using database aggregation
+        better_players_count = LeaderboardEntry.objects.filter(
+            total_score__gt=leaderboard_entry.total_score
+        ).count()
+        current_rank = better_players_count + 1
         
-        # # Update rank if it's different (optional optimization)
-        # if leaderboard_entry.rank != current_rank:
-        #     leaderboard_entry.rank = current_rank
-        #     leaderboard_entry.save(update_fields=['rank'])
+        # Update rank if it's different (optimized with update_fields)
+        if leaderboard_entry.rank != current_rank:
+            leaderboard_entry.rank = current_rank
+            leaderboard_entry.save(update_fields=['rank'])
         
         serializer = LeaderboardEntrySerializer(leaderboard_entry)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     except Exception as e:
+        logger.error(f"Error in get_player_rank: {str(e)}")
         return Response(
             {'error': 'Internal server error'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+# # Additional optimized views for common queries
+# @api_view(['GET'])
+# def get_user_game_history(request, user_id):
+#     """
+#     Get user's game history with optimized queries.
+#     GET /api/leaderboard/user/{user_id}/history
+#     """
+#     try:
+#         # Optimized query with select_related and pagination
+#         queryset = GameSession.objects.select_related('user').filter(
+#             user_id=user_id
+#         ).order_by('-timestamp')
+        
+#         paginator = LimitOffsetPagination()
+#         paginator.default_limit = 20
+#         paginated_queryset = paginator.paginate_queryset(queryset, request)
+        
+#         serializer = GameSessionSerializer(paginated_queryset, many=True)
+#         return paginator.get_paginated_response(serializer.data)
+        
+#     except Exception as e:
+#         logger.error(f"Error in get_user_game_history: {str(e)}")
+#         return Response(
+#             {'error': 'Internal server error'}, 
+#             status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#         )
+
+
+# @api_view(['GET'])
+# def get_game_mode_stats(request):
+#     """
+#     Get game mode statistics with optimized aggregation.
+#     GET /api/leaderboard/stats/modes
+#     """
+#     try:
+#         # Optimized aggregation query
+#         stats = GameSession.objects.values('game_mode').annotate(
+#             total_sessions=Count('id'),
+#             avg_score=F('score__avg'),
+#             max_score=F('score__max'),
+#             min_score=F('score__min')
+#         ).order_by('-total_sessions')
+        
+#         return Response(list(stats), status=status.HTTP_200_OK)
+        
+#     except Exception as e:
+#         logger.error(f"Error in get_game_mode_stats: {str(e)}")
+#         return Response(
+#             {'error': 'Internal server error'}, 
+#             status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#         )
+
+
+# # Query debugging utility (development only)
+# def debug_queries(view_func):
+#     """Decorator to log query count and execution time for debugging"""
+#     def wrapper(*args, **kwargs):
+#         from django.conf import settings
+#         if settings.DEBUG:
+#             initial_queries = len(connection.queries)
+#             import time
+#             start_time = time.time()
+            
+#             response = view_func(*args, **kwargs)
+            
+#             end_time = time.time()
+#             query_count = len(connection.queries) - initial_queries
+#             execution_time = (end_time - start_time) * 1000
+            
+#             logger.debug(f"{view_func.__name__}: {query_count} queries in {execution_time:.2f}ms")
+            
+#             return response
+#         return view_func(*args, **kwargs)
+#     return wrapper

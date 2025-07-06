@@ -1,5 +1,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+**/__pycache__/
+**/migrations/__pycache__/
+**/migrations/*.pyc
+**/gaming_leaderboard/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -11,6 +15,7 @@ env/
 ENV/
 venv/
 .venv/
+.python-version
 
 # Distribution / packaging
 build/
@@ -29,22 +34,86 @@ htmlcov/
 .coverage
 .coverage.*
 .pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
 # Django specific files
 *.log
 db.sqlite3
+db.sqlite3-journal
 local_settings.py
 media/
 staticfiles/
+static/
+migrations/__pycache__/
+*.pyc
+
+# Django migrations (uncomment if you want to ignore migrations)
+# */migrations/*.py
+# */migrations/*.pyc
+# !*/migrations/__init__.py
+
+# Celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
 
 # Environment variables files
 .env
 .env.*
+.envrc
 
 # IDE directories and project settings
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS generated files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Node.js (if using npm/yarn for frontend assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Security
+*.pem
+*.key
+*.crt
+*.csr
+
+# Backup files
+*.backup
+*.orig
+
+# Redis dump file
+dump.rdb
+
+# Management commands
+leaderboard/management/
+
+# PostgreSQL
+*.sql
+*.dump 

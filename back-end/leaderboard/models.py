@@ -23,6 +23,9 @@ class GameSession(models.Model):
             models.Index(fields=["-score"], name="gamesession_score_idx"),
             models.Index(fields=["user"], name="gamesession_user_idx"),
             models.Index(fields=["game_mode"], name="gamesession_mode_idx"),
+            # # Composite indexes for specific query patterns
+            # models.Index(fields=["user", "-timestamp"], name="gamesession_user_time_idx"),  # User's recent games
+            # models.Index(fields=["game_mode", "-score"], name="gamesession_mode_score_idx"),  # Top scores per mode
         ]
         ordering = ["-timestamp"]
         verbose_name = "Game Session"

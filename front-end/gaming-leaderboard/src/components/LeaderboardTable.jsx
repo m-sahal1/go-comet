@@ -17,8 +17,7 @@ const LeaderboardTable = () => {
       
       console.log('🎯 Fetching leaderboard data...');
       const rawData = await leaderboardService.getTopPlayers();
-      const transformedData = transformLeaderboardData(rawData);
-      
+      const transformedData = transformLeaderboardData(rawData?.results);
       setPlayers(transformedData);
       setLastUpdated(new Date());
       console.log('✅ Leaderboard data loaded:', transformedData.length, 'players');
@@ -122,11 +121,10 @@ const LeaderboardTable = () => {
             <th>Rank</th>
             <th>Player</th>
             <th>Score</th>
-            <th className="country-col">Country</th>
           </tr>
         </thead>
         <tbody>
-          {players.map(({ rank, username, score, country, userId }) => (
+          {players.map(({ rank, username, score, userId }) => (
             <tr key={userId || rank} className={`rank-${rank}`}>
               <td>
                 {rank <= 3 ? (
@@ -139,7 +137,6 @@ const LeaderboardTable = () => {
               </td>
               <td className="username-cell">{username}</td>
               <td>{score.toLocaleString()}</td>
-              <td className="country-col">{country}</td>
             </tr>
           ))}
         </tbody>

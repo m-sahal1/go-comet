@@ -105,14 +105,14 @@ export const transformLeaderboardData = (rawData) => {
     console.warn('Invalid leaderboard data format:', rawData);
     return [];
   }
+  console.log('=====>Raw leaderboard data:', rawData);
   return rawData.map((player, index) => ({
     rank: player.rank || index + 1,
     username: sanitizeUsername(player.user.username || player.user.id || 'Unknown'),
     score: parseInt(player.total_score) || 0,
-    country: player.country || '🌍',
     userId: player.user.id || player.user.username,
-    gameMode: player.gameMode || 'standard',
-    timestamp: player.timestamp || player.lastPlayed || new Date().toISOString(),
+    gameMode: player.gameMode || 'default',
+    timestamp: player.date_joined || new Date().toISOString(),
   }));
 };
 
