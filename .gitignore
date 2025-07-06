@@ -1,0 +1,42 @@
+# Node.js & Vite
+node_modules/
+.dist/
+dist/
+.vite/
+build/
+
+# Production build output (if different)
+*.bundle.js
+*.bundle.js.map
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*
+
+# Testing & coverage
+coverage/
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+*.tgz
+
+# Local build results
+*.tsbuildinfo 

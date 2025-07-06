@@ -1,0 +1,23 @@
+.app-header {
+  background: #1a1a2e;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #00d4ff;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
+}
+
+body {
+  margin: 0;
+  background: #0a0a0a;
+  color: #ffffff;
+  display: block;
+  min-height: 100vh;
+} 
