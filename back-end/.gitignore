@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+env/
+ENV/
+venv/
+.venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.pytest_cache/
+
+# Django specific files
+*.log
+db.sqlite3
+local_settings.py
+media/
+staticfiles/
+
+# Environment variables files
+.env
+.env.*
+
+# IDE directories and project settings
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db 

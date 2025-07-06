@@ -1,0 +1,212 @@
+
+## Phase 1: Project Setup and Basic Structure
+
+**Step 1: Initial Django Project Setup ✅**
+```
+Create a new Django project for a gaming leaderboard system. Set up the project structure with:
+- Django project named 'gaming_leaderboard'
+- Django app named 'leaderboard'
+- Configure settings.py for PostgreSQL database
+- Set up requirements.txt in virtual env with necessary dependencies including Django, psycopg2, django-rest-framework, celery, redis
+- Create basic project structure with proper folder organization
+```
+
+**Step 2: Database Models Setup ✅**
+```
+Create Django models for the gaming leaderboard system based on this database schema:
+- Users table: id, username (unique), join_date
+- Game_sessions table: id, user_id (foreign key), score, game_mode, timestamp
+- Leaderboard table: id, user_id (foreign key), total_score, rank
+Ensure proper relationships, constraints, and indexing for performance. Add Meta classes for database optimization.
+```
+
+**Step 3: Django REST Framework Configuration ✅**
+```
+Set up Django REST Framework for the leaderboard APIs:
+- Configure DRF in settings.py
+- Create serializers for User, GameSession, and Leaderboard models
+- Set up proper API versioning
+- Configure pagination for large datasets
+- Add basic authentication and permissions
+```
+
+## Phase 2: Core API Implementation
+
+**Step 4: Submit Score API**
+```
+Implement the Submit Score API (POST /api/leaderboard/submit) using Django REST Framework:
+- Accept user_id and score in request body
+- Validate input data
+- Create new game session record
+- Update leaderboard total_score atomically
+- Handle concurrent requests with database transactions
+- Return appropriate response with status codes
+```
+
+**Step 5: Get Leaderboard API**
+```
+Implement the Get Leaderboard API (GET /api/leaderboard/top):
+- Retrieve top 10 players sorted by total_score
+- Implement efficient database queries with proper indexing
+- Add pagination support for scalability
+- Include user details in response
+- Optimize query performance for large datasets
+```
+
+**Step 6: Get Player Rank API**
+```
+Implement the Get Player Rank API (GET /api/leaderboard/rank/{user_id}):
+- Fetch specific player's current rank efficiently
+- Handle cases where user doesn't exist
+- Calculate rank dynamically or use pre-computed ranks
+- Optimize for performance with large datasets
+- Return user details along with rank information
+```
+
+## Phase 3: Database Optimization and Performance
+
+**Step 7: Database Indexing Strategy**
+```
+Create a comprehensive database indexing strategy for the leaderboard system:
+- Identify slow queries and bottlenecks
+- Create appropriate indexes on frequently queried columns
+- Implement composite indexes for complex queries
+- Use Django database migration commands
+- Document the performance impact of each index
+```
+
+**Step 8: Database Population Script**
+```
+Create Django management commands to populate the database with large datasets:
+- Command to create 1 million users
+- Command to create 5 million game sessions with random data
+- Command to populate leaderboard with aggregated scores
+- Implement batch processing for memory efficiency
+- Add progress tracking and error handling
+```
+
+## Phase 4: Caching and Performance Optimization
+
+**Step 9: Redis Caching Implementation**
+```
+Implement Redis caching for the leaderboard system:
+- Configure Redis as Django cache backend
+- Cache leaderboard top 10 results
+- Cache individual user rankings
+- Implement cache invalidation strategies
+- Handle cache warming and cache-aside patterns
+```
+
+**Step 10: Query Optimization**
+```
+Optimize database queries for the leaderboard APIs:
+- Use Django's select_related and prefetch_related
+- Implement database connection pooling
+- Optimize ORM queries to reduce N+1 problems
+- Use raw SQL queries where necessary for performance
+- Add query debugging and monitoring
+```
+
+## Phase 5: Concurrency and Data Consistency
+
+**Step 11: Transaction Management**
+```
+Implement proper transaction management for concurrent operations:
+- Use Django's transaction.atomic() for score submissions
+- Handle race conditions in leaderboard updates
+- Implement optimistic locking where appropriate
+- Add retry mechanisms for failed transactions
+- Ensure ACID properties are maintained
+```
+
+**Step 12: Celery Background Tasks**
+```
+Set up Celery for background task processing:
+- Configure Celery with Redis as message broker
+- Create background tasks for leaderboard rank calculations
+- Implement periodic tasks for cache warming
+- Add task monitoring and error handling
+- Handle task failures and retries gracefully
+```
+
+## Phase 6: Monitoring and Load Testing
+
+**Step 13: New Relic Integration**
+```
+Integrate New Relic monitoring into the Django application:
+- Install and configure New Relic Python agent
+- Set up custom metrics for API performance
+- Create dashboards for database query performance
+- Add alerting for slow response times
+- Monitor memory usage and application health
+```
+
+**Step 14: Load Testing Setup**
+```
+Create load testing scripts for the leaderboard system:
+- Use locust or similar tool to simulate concurrent users
+- Test all three APIs under different load scenarios
+- Monitor database performance during load tests
+- Generate performance reports
+- Identify bottlenecks and optimization opportunities
+```
+
+## Phase 7: Security and Production Readiness
+
+**Step 15: API Security Implementation**
+```
+Implement security measures for the leaderboard APIs:
+- Add rate limiting using Django-ratelimit
+- Implement proper authentication and authorization
+- Add input validation and sanitization
+- Protect against common attacks (SQL injection, XSS)
+- Add logging for security events
+```
+
+**Step 16: Production Configuration**
+```
+Configure the Django application for production deployment:
+- Set up environment-specific settings
+- Configure logging with appropriate levels
+- Set up database connection pooling
+- Configure static file serving
+- Add health check endpoints
+- Set up proper error handling and 500 error pages
+```
+
+## Phase 8: Testing and Documentation
+
+**Step 17: Unit and Integration Testing**
+```
+Create comprehensive tests for the leaderboard system:
+- Unit tests for models, views, and serializers
+- Integration tests for API endpoints
+- Performance tests for database operations
+- Test concurrent operations and race conditions
+- Add test coverage reporting
+```
+
+**Step 18: Documentation and Deployment**
+```
+Create comprehensive documentation for the leaderboard system:
+- API documentation with examples
+- Database schema documentation
+- Performance optimization guide
+- Deployment instructions
+- System architecture diagrams
+- Troubleshooting guide
+```
+
+## Usage Instructions:
+
+1. **Sequential Implementation**: Use these prompts in order, as each builds upon the previous ones.
+
+2. **Iterative Development**: After each prompt, test the implementation before moving to the next.
+
+3. **Customization**: Modify the prompts based on your specific requirements or constraints.
+
+4. **Performance Focus**: Pay special attention to prompts 7-12 as they address the core performance requirements.
+
+5. **Testing**: Don't skip the testing prompts - they're crucial for a production-ready system.
+
+Each prompt is designed to be comprehensive enough for an AI to provide detailed implementation guidance while being specific enough to ensure you get the right technical approach for a high-performance Django backend.
