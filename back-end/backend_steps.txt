@@ -32,7 +32,7 @@ Set up Django REST Framework for the leaderboard APIs:
 
 ## Phase 2: Core API Implementation
 
-**Step 4: Submit Score API**
+**Step 4: Submit Score API ✅**
 ```
 Implement the Submit Score API (POST /api/leaderboard/submit) using Django REST Framework:
 - Accept user_id and score in request body
@@ -43,23 +43,21 @@ Implement the Submit Score API (POST /api/leaderboard/submit) using Django REST 
 - Return appropriate response with status codes
 ```
 
-**Step 5: Get Leaderboard API**
+**Step 5: Get Leaderboard API ✅**
 ```
 Implement the Get Leaderboard API (GET /api/leaderboard/top):
 - Retrieve top 10 players sorted by total_score
 - Implement efficient database queries with proper indexing
 - Add pagination support for scalability
 - Include user details in response
-- Optimize query performance for large datasets
 ```
 
-**Step 6: Get Player Rank API**
+**Step 6: Get Player Rank API ✅**
 ```
 Implement the Get Player Rank API (GET /api/leaderboard/rank/{user_id}):
 - Fetch specific player's current rank efficiently
 - Handle cases where user doesn't exist
 - Calculate rank dynamically or use pre-computed ranks
-- Optimize for performance with large datasets
 - Return user details along with rank information
 ```
 
