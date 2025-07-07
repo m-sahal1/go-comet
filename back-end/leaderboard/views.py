@@ -217,7 +217,7 @@ def get_player_rank(request, user_id):
         
         # Optimized user lookup with only() to fetch minimal data
         try:
-            user = User.objects.only('id', 'username', 'date_joined').get(id=user_id)
+            user = User.objects.only('id', 'username', 'date_joined').get(username=user_id)
         except User.DoesNotExist:
             newrelic.agent.record_custom_event('PlayerRankError', {
                 'error_type': 'user_not_found',
@@ -272,7 +272,6 @@ def get_player_rank(request, user_id):
         
         # Track custom metrics
         newrelic.agent.record_custom_metric('Custom/Leaderboard/RankLookups', 1)
-        
         serializer = LeaderboardEntrySerializer(leaderboard_entry)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
