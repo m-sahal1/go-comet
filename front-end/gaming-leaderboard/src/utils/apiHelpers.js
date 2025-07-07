@@ -122,6 +122,7 @@ export const transformLeaderboardData = (rawData) => {
  * @returns {Object} Transformed player data
  */
 export const transformPlayerData = (rawData) => {
+  console.log('=====>Raw player data:', rawData);
   if (!rawData || typeof rawData !== 'object') {
     console.warn('Invalid player data format:', rawData);
     return null;
@@ -129,16 +130,11 @@ export const transformPlayerData = (rawData) => {
 
   return {
     rank: parseInt(rawData.rank) || null,
-    username: sanitizeUsername(rawData.username || rawData.userId || 'Unknown'),
-    score: parseInt(rawData.score) || 0,
-    country: rawData.country || '🌍',
-    userId: rawData.userId || rawData.username,
-    gameMode: rawData.gameMode || 'standard',
-    timestamp: rawData.timestamp || rawData.lastPlayed || new Date().toISOString(),
-    // Additional stats if available
-    totalGames: parseInt(rawData.totalGames) || 0,
-    avgScore: parseFloat(rawData.avgScore) || 0,
-    bestScore: parseInt(rawData.bestScore) || rawData.score || 0,
+    username: sanitizeUsername(rawData.user.username || rawData.user.id || 'Unknown'),
+    score: parseInt(rawData.total_score) || 0,
+    userId: rawData.user.id || rawData.user.username,
+    gameMode: rawData.game_mode || 'default',
+    timestamp: rawData.date_joined || new Date().toISOString(),
   };
 };
 
