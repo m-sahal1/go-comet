@@ -34,15 +34,10 @@ def submit_score(request):
         newrelic.agent.add_custom_attribute('user_id', request.user.id)
         newrelic.agent.add_custom_attribute('endpoint', 'submit_score')
         
-        score = request.data.get('score')
+        score = int(request.data.get('score')) if request.data.get('score') else None
         game_mode = request.data.get('game_mode', 'default')
         
-        # Track score submission metrics
-        newrelic.agent.add_custom_attribute('submitted_score', score)
-        newrelic.agent.add_custom_attribute('game_mode', game_mode)
-        
-        # Validate input
-        if not isinstance(score, int) or score < 0:
+        if not score or score < 0:
             newrelic.agent.record_custom_event('ScoreSubmissionError', {
                 'error_type': 'invalid_score',
                 'user_id': request.user.id,
@@ -52,6 +47,12 @@ def submit_score(request):
                 {'error': 'Score must be a non-negative integer'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Track score submission metrics
+        newrelic.agent.add_custom_attribute('submitted_score', score)
+        newrelic.agent.add_custom_attribute('game_mode', game_mode)
+        
+        
         
         if not game_mode or len(game_mode) > 50:
             newrelic.agent.record_custom_event('ScoreSubmissionError', {
